@@ -17,19 +17,22 @@ namespace CodeRethinked.SignalRStreaming.SignalR
 
             return channel.Reader;
         }
+     
 
         private async Task WriteItems(ChannelWriter<int> writer, int delay)
         {
-            for (; ; )
+            for (int i=1; i<500000; i++)
             {
                 //For every 5 items streamed, add twice the delay
               
 
-                await writer.WriteAsync(100);
+                await writer.WriteAsync(i);
                 await Task.Delay(delay);
             }
-
+            
             writer.TryComplete();
         }
+      
+
     }
 }

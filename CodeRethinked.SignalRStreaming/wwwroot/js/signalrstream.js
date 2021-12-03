@@ -11,13 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+    //.withUrl("https://localhost:5002/myhub")
+    //.withUrl("/streamHub")
 
 var connection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:5002/myhub")
     .build();
 document.getElementById("streamButton").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
     try {
-        connection.stream("DelayCounter", 5)
+        connection.stream("PriceLogStream",250)
             .subscribe({
                 next: (item) => {
                     console.log(item);
