@@ -11,15 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-    //.withUrl("https://localhost:5002/myhub")
-    //.withUrl("/streamHub")
+//.withUrl("https://localhost:5002/myhub")
+//.withUrl("/streamHub")
 
 var connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:5002/myhub")
+    .withUrl("/streamhub")
     .build();
 document.getElementById("streamButton").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
     try {
-        connection.stream("PriceLogStream",250)
+        connection.stream("PriceLogStream", 1000)
             .subscribe({
                 next: (item) => {
                     console.log(item);
@@ -44,6 +44,34 @@ document.getElementById("streamButton").addEventListener("click", (event) => __a
     }
     event.preventDefault();
 }));
+document.getElementById("streamButton2").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+    try {
+        connection.stream("LogStreamUserId", 1000)
+            .subscribe({
+                next: (item) => {
+                    console.log(item);
+                    var li = document.createElement("li");
+                    li.textContent = item;
+                    document.getElementById("messagesList").appendChild(li);
+                },
+                complete: () => {
+                    var li = document.createElement("li");
+                    li.textContent = "Stream completed";
+                    document.getElementById("messagesList").appendChild(li);
+                },
+                error: (err) => {
+                    var li = document.createElement("li");
+                    li.textContent = err;
+                    document.getElementById("messagesList").appendChild(li);
+                },
+            });
+    }
+    catch (e) {
+        console.error(e.toString());
+    }
+    event.preventDefault();
+}));
+
 // We need an async function in order to use await, but we want this code to run immediately,
 // so we use an "immediately-executed async function"
 (() => __awaiter(this, void 0, void 0, function* () {
