@@ -11,9 +11,9 @@ namespace CodeRethinked.SignalRStreaming.SignalR
 {
     public class StreamHub : Hub
     {
-
-        public static ConcurrentDictionary<string, string> _stock = new ConcurrentDictionary<string, string>();
-        public static ConcurrentDictionary<string, string> _personelStock = new ConcurrentDictionary<string, string>();
+        Random random = new Random();
+        public static Dictionary<string, string> _stock = new Dictionary<string, string>();
+        public static Dictionary<string, string> _personelStock = new Dictionary<string, string>();
         public ChannelReader<IEnumerable<string>> PriceLogStream(int delay)
         {
             var channel = Channel.CreateUnbounded<IEnumerable<string>>();
@@ -29,7 +29,6 @@ namespace CodeRethinked.SignalRStreaming.SignalR
 
             while (true)
             {
-                Random random = new Random();
                 foreach (var item in stdcodelist)
                 {
                     Stock stock = new Stock()
@@ -37,22 +36,20 @@ namespace CodeRethinked.SignalRStreaming.SignalR
                         price = random.Next(100, 200),
                         symbol = item
                     };
-                    Task.Run(() =>
+                    if (_stock.ContainsKey(stock.symbol))
                     {
-                        if (_stock.ContainsKey(stock.symbol))
-                        {
-                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(stock);
-                            _stock[stock.symbol] = json;
-                        }
-                        else
-                        {
-                            var json = Newtonsoft.Json.JsonConvert.SerializeObject(stock);
-                            _stock.TryAdd(stock.symbol, json);
-                        }
-                        writer.WriteAsync(_stock.Values);
-                    }).Wait();
-                    await Task.Delay(delay);
+                        var json = Newtonsoft.Json.JsonConvert.SerializeObject(stock);
+                        _stock[stock.symbol] = json;
+                    }
+                    else
+                    {
+                        var json = Newtonsoft.Json.JsonConvert.SerializeObject(stock);
+                        _stock.TryAdd(stock.symbol, json);
+                    }
+
                 }
+                await writer.WriteAsync(_stock.Values);
+                await Task.Delay(delay);
             }
         }
 
@@ -65,7 +62,7 @@ namespace CodeRethinked.SignalRStreaming.SignalR
         }
         private async Task WriterByUserId(ChannelWriter<IEnumerable<string>> writer, int delay)
         {
-            string[] stdcodelist = { "USDTRY", "EURTRY", "EURUSD", "XU100", "XU030", "BRENT", "XGLD", "GLD" };
+            string[] stdcodelist = { "USDTRY", "EURTRY" };
             //string dovizz = ";USDTRY;EURTRY;EURUSD;USDJPY;USDRUB;USDCNY;AUDUSD;GBPUSD;XAUUSD;GBPTRY";
 
             while (true)
@@ -75,27 +72,24 @@ namespace CodeRethinked.SignalRStreaming.SignalR
                     var abc = _stock.ContainsKey(stock);
                     if (abc)
                     {
-                        Task.Run(() =>
+                        if (_personelStock.ContainsKey(stock))
                         {
-                            if (_personelStock.ContainsKey(stock))
-                            {
-                                // var json = Newtonsoft.Json.JsonConvert.SerializeObject(_stock[stock]);
-                                //_personelStock[stock] = json + "FavList";
-                                _personelStock[stock] = _stock[stock] + "FavList";
-                            }
-                            else
-                            {
-                                // var json = Newtonsoft.Json.JsonConvert.SerializeObject(_stock[stock]);
-                                //_personelStock.TryAdd(stock, json + "FavList");
-                                _personelStock.TryAdd(stock, _stock[stock]+"FavList");
-                            }
-                            writer.WriteAsync(_personelStock.Values);
-                        }).Wait();
-                        await Task.Delay(delay);
-
+                            // var json = Newtonsoft.Json.JsonConvert.SerializeObject(_stock[stock]);
+                            //_personelStock[stock] = json + "FavList";
+                            _personelStock[stock] = _stock[stock] + "FavList";
+                        }
+                        else
+                        {
+                            // var json = Newtonsoft.Json.JsonConvert.SerializeObject(_stock[stock]);
+                            //_personelStock.TryAdd(stock, json + "FavList");
+                            _personelStock.TryAdd(stock, _stock[stock] + "FavList");
+                        }
                     }
                     //await writer.WriteAsync(item);
                 }
+               await writer.WriteAsync(_personelStock.Values);
+                await Task.Delay(delay);
+
             }
         }
 

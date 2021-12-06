@@ -18,14 +18,18 @@ var connection = new signalR.HubConnectionBuilder()
     .withUrl("/streamhub")
     .build();
 document.getElementById("streamButton").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+    connection.start();
     try {
         connection.stream("PriceLogStream", 1000)
             .subscribe({
                 next: (item) => {
                     console.log(item);
                     var li = document.createElement("li");
+                    var li2 = document.createElement("li");
                     li.textContent = item;
+                    li2.textContent = "--------------------------------------------------------------------------";
                     document.getElementById("messagesList").appendChild(li);
+                    document.getElementById("messagesList").appendChild(li2);
                 },
                 complete: () => {
                     var li = document.createElement("li");
@@ -45,14 +49,18 @@ document.getElementById("streamButton").addEventListener("click", (event) => __a
     event.preventDefault();
 }));
 document.getElementById("streamButton2").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+    connection.start();
     try {
         connection.stream("LogStreamUserId", 1000)
             .subscribe({
                 next: (item) => {
                     console.log(item);
                     var li = document.createElement("li");
+                    var li2 = document.createElement("li");
                     li.textContent = item;
+                    li2.textContent = "--------------------------------------------------------------------------";
                     document.getElementById("messagesList").appendChild(li);
+                    document.getElementById("messagesList").appendChild(li2);
                 },
                 complete: () => {
                     var li = document.createElement("li");
@@ -70,6 +78,13 @@ document.getElementById("streamButton2").addEventListener("click", (event) => __
         console.error(e.toString());
     }
     event.preventDefault();
+}));
+
+document.getElementById("stopStream").addEventListener("click", (event) => __awaiter(this, void 0, void 0, function* () {
+    connection.stop();
+    document.getElementById("messagesList").innerHTML="";
+    alert('stopped');
+
 }));
 
 // We need an async function in order to use await, but we want this code to run immediately,
